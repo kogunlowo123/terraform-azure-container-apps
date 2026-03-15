@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>terraform-azure-container-apps | Architecture</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0b0c0b;color:#f5f2eb;font-family:'SF Mono','Cascadia Code','Fira Code',monospace;line-height:1.7;padding:0}
+a{color:#c8420a;text-decoration:none}a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:2rem}
+header{background:linear-gradient(135deg,#0b0c0b 0%,#1a1b1a 100%);border-bottom:2px solid #c8420a;padding:2rem 0}
+header .container{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+h1{font-size:1.8rem;color:#f5f2eb}h2{font-size:1.4rem;color:#c8420a;margin:2rem 0 1rem;padding-bottom:0.5rem;border-bottom:1px solid #2a2b2a}
+.badge{background:#0078D4;color:#fff;padding:0.3rem 1rem;border-radius:4px;font-size:0.85rem;font-weight:600;letter-spacing:0.5px}.badge-type{background:#c8420a}
+.summary{background:#1a1b1a;border:1px solid #2a2b2a;border-radius:8px;padding:1.5rem;margin:1.5rem 0;font-size:0.95rem;line-height:1.8}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
+.card{background:#1a1b1a;border:1px solid #2a2b2a;border-radius:8px;padding:1.25rem;transition:border-color 0.2s}.card:hover{border-color:#c8420a}
+.card-title{font-size:0.95rem;color:#c8420a;margin-bottom:0.5rem}.card-value{font-size:1.3rem;color:#f5f2eb;font-weight:700}.card-desc{font-size:0.8rem;color:#888;margin-top:0.25rem}
+.arch-diagram{background:#1a1b1a;border:1px solid #2a2b2a;border-radius:8px;padding:2rem;margin:1.5rem 0;overflow-x:auto}
+.flow{display:flex;flex-direction:column;align-items:center;gap:1rem}
+.flow-row{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;align-items:center}
+.flow-box{background:#0b0c0b;border:2px solid #c8420a;border-radius:8px;padding:0.75rem 1.25rem;text-align:center;font-size:0.85rem;min-width:140px}
+.flow-box.primary{border-color:#0078D4;background:#0a1628}.flow-box.secondary{border-color:#3F8624;background:#0a1a0a}.flow-box.accent{border-color:#c8420a;background:#1a0f0a}.flow-box.purple{border-color:#8C4FFF;background:#140a28}.flow-box.warning{border-color:#FF9900;background:#1a1400}
+.flow-arrow{color:#555;font-size:1.5rem}.flow-label{font-size:0.7rem;color:#888;margin-top:0.2rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.85rem}
+th{background:#1a1b1a;color:#c8420a;text-align:left;padding:0.75rem;border:1px solid #2a2b2a;font-weight:600}
+td{padding:0.75rem;border:1px solid #2a2b2a;color:#f5f2eb}tr:nth-child(even){background:#111211}tr:hover{background:#1a1b1a}
+.check{color:#3F8624}.x{color:#DD344C}
+.checklist{list-style:none;padding:0}.checklist li{padding:0.4rem 0;padding-left:1.5rem;position:relative;font-size:0.9rem}.checklist li::before{content:"[  ]";position:absolute;left:0;color:#c8420a;font-size:0.85rem}
+code{background:#1a1b1a;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85rem;color:#c8420a}
+pre{background:#1a1b1a;border:1px solid #2a2b2a;border-radius:8px;padding:1.25rem;overflow-x:auto;font-size:0.85rem;margin:1rem 0}
+.data-flow-step{display:flex;align-items:flex-start;gap:1rem;margin:0.75rem 0}.step-num{background:#c8420a;color:#fff;min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0}.step-text{font-size:0.9rem}
+footer{background:#1a1b1a;border-top:2px solid #c8420a;padding:2rem 0;margin-top:3rem;text-align:center;font-size:0.8rem;color:#555}
+.section{margin-bottom:2rem}
+</style>
+</head>
+<body>
+<header>
+<div class="container">
+<div>
+<h1>terraform-azure-container-apps</h1>
+<p style="color:#888;margin-top:0.3rem;font-size:0.9rem">Azure Container Apps Environment & Apps Module</p>
+</div>
+<div>
+<span class="badge">Azure</span>
+<span class="badge badge-type">Container Apps</span>
+</div>
+</div>
+</header>
+
+<div class="container">
+
+<section class="section">
+<h2>Executive Summary</h2>
+<div class="summary">
+Production-ready Terraform module for deploying Azure Container Apps with fully managed environments, multiple container apps, Dapr sidecar components, custom domains with managed certificates, workload profiles, VNet injection, internal/external ingress with traffic splitting, IP security restrictions, health probes (liveness/readiness), volume mounts from Azure File Shares, container registries, secrets management, and integrated Log Analytics monitoring. Supports zero-to-N scale-to-zero serverless workloads.
+</div>
+</section>
+
+<section class="section">
+<h2>Overview Cards</h2>
+<div class="cards">
+<div class="card"><div class="card-title">Resources</div><div class="card-value">7 types</div><div class="card-desc">Env, Apps, Dapr, Storage, Certs, Domains, LA</div></div>
+<div class="card"><div class="card-title">Variables</div><div class="card-value">17</div><div class="card-desc">3 required, 14 optional</div></div>
+<div class="card"><div class="card-title">Outputs</div><div class="card-value">11</div><div class="card-desc">IDs, FQDNs, IPs, revisions, Dapr</div></div>
+<div class="card"><div class="card-title">Scaling</div><div class="card-value">0 to N</div><div class="card-desc">Scale-to-zero serverless</div></div>
+<div class="card"><div class="card-title">Networking</div><div class="card-value">VNet Inject</div><div class="card-desc">Internal/External LB</div></div>
+<div class="card"><div class="card-title">Sidecar</div><div class="card-value">Dapr</div><div class="card-desc">State store, pub/sub, bindings</div></div>
+</div>
+</section>
+
+<section class="section">
+<h2>Architecture Diagram</h2>
+<div class="arch-diagram">
+<div class="flow">
+<div class="flow-row">
+<div class="flow-box warning">Ingress Controller<div class="flow-label">External/Internal</div></div>
+<div class="flow-box warning">Custom Domains<div class="flow-label">Managed certificates</div></div>
+<div class="flow-box warning">Traffic Weights<div class="flow-label">A/B, Canary, Blue-Green</div></div>
+</div>
+<div class="flow-arrow">&#x2193;</div>
+<div class="flow-row">
+<div class="flow-box primary">Container Apps Environment<div class="flow-label">Managed Kubernetes (abstracted)</div></div>
+<div class="flow-box primary">Workload Profiles<div class="flow-label">D4/D8/D16/D32/E4/E8/E16/E32</div></div>
+</div>
+<div class="flow-arrow">&#x2193;</div>
+<div class="flow-row">
+<div class="flow-box secondary">Web Gateway App<div class="flow-label">0-10 replicas</div></div>
+<div class="flow-box secondary">API Service App<div class="flow-label">0-10 replicas</div></div>
+<div class="flow-box secondary">Worker App<div class="flow-label">Background processing</div></div>
+</div>
+<div class="flow-arrow">&#x2193;</div>
+<div class="flow-row">
+<div class="flow-box purple">Dapr: State Store<div class="flow-label">Component</div></div>
+<div class="flow-box purple">Dapr: Pub/Sub<div class="flow-label">Component</div></div>
+<div class="flow-box purple">Azure File Shares<div class="flow-label">Volume mounts</div></div>
+</div>
+<div class="flow-arrow">&#x2193;</div>
+<div class="flow-row">
+<div class="flow-box accent">VNet / Subnet<div class="flow-label">Infrastructure subnet (/21+)</div></div>
+<div class="flow-box accent">Internal Load Balancer<div class="flow-label">Optional</div></div>
+</div>
+<div class="flow-arrow">&#x2193;</div>
+<div class="flow-row">
+<div class="flow-box primary">Log Analytics Workspace<div class="flow-label">Centralized logging</div></div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<h2>Component Breakdown</h2>
+<table>
+<tr><th>Component</th><th>Resource Type</th><th>Purpose</th><th>Configuration</th></tr>
+<tr><td>Environment</td><td><code>azurerm_container_app_environment</code></td><td>Managed container hosting platform</td><td>VNet injection, zone redundancy, workload profiles</td></tr>
+<tr><td>Container Apps</td><td><code>azurerm_container_app</code></td><td>Individual application deployments</td><td>for_each, containers, ingress, secrets, registries</td></tr>
+<tr><td>Dapr Components</td><td><code>azurerm_container_app_environment_dapr_component</code></td><td>Microservice building blocks</td><td>State store, pub/sub, bindings with scoped access</td></tr>
+<tr><td>Environment Storage</td><td><code>azurerm_container_app_environment_storage</code></td><td>Azure File Share mounts</td><td>Account name, share name, access mode</td></tr>
+<tr><td>Managed Certificates</td><td><code>azurerm_container_app_environment_certificate</code></td><td>TLS certificates for custom domains</td><td>Managed certificate provisioning</td></tr>
+<tr><td>Custom Domains</td><td><code>azurerm_container_app_custom_domain</code></td><td>Custom domain binding</td><td>SNI-enabled certificate binding</td></tr>
+<tr><td>Log Analytics</td><td><code>azurerm_log_analytics_workspace</code></td><td>Environment logging</td><td>Optional creation, configurable retention</td></tr>
+</table>
+</section>
+
+<section class="section">
+<h2>Data Flow</h2>
+<div class="data-flow-step"><div class="step-num">1</div><div class="step-text">Client requests arrive at the environment's ingress controller (external or internal LB).</div></div>
+<div class="data-flow-step"><div class="step-num">2</div><div class="step-text">Traffic weights split requests across revisions for canary/blue-green deployments.</div></div>
+<div class="data-flow-step"><div class="step-num">3</div><div class="step-text">Container apps scale from 0 to max replicas based on HTTP traffic or custom rules.</div></div>
+<div class="data-flow-step"><div class="step-num">4</div><div class="step-text">Dapr sidecars provide state management, pub/sub messaging, and service invocation.</div></div>
+<div class="data-flow-step"><div class="step-num">5</div><div class="step-text">Volume mounts provide persistent storage from Azure File Shares.</div></div>
+<div class="data-flow-step"><div class="step-num">6</div><div class="step-text">All application logs stream to Log Analytics workspace.</div></div>
+</section>
+
+<section class="section">
+<h2>Security Controls</h2>
+<table>
+<tr><th>Control</th><th>Implementation</th><th>Default</th></tr>
+<tr><td>VNet Injection</td><td>Deploy in dedicated subnet (/21+)</td><td>Optional</td></tr>
+<tr><td>Internal LB</td><td>No public ingress, internal only</td><td>Disabled</td></tr>
+<tr><td>IP Restrictions</td><td>Per-app ingress IP security rules</td><td>Configurable</td></tr>
+<tr><td>TLS</td><td>Managed certificates for custom domains</td><td>Auto-provisioned</td></tr>
+<tr><td>Secrets</td><td>Container app secrets (not in state)</td><td>Configurable</td></tr>
+<tr><td>Registry Auth</td><td>Username/password or managed identity</td><td>Configurable</td></tr>
+<tr><td>Zone Redundancy</td><td>Multi-zone environment deployment</td><td>Disabled</td></tr>
+</table>
+</section>
+
+<section class="section">
+<h2>Industry Adaptation</h2>
+<table>
+<tr><th>Capability</th><th>Healthcare</th><th>Finance</th><th>Government</th><th>Retail</th><th>SaaS</th></tr>
+<tr><td>VNet Injection</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td>Optional</td><td>Optional</td></tr>
+<tr><td>Internal LB</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td>Optional</td><td>Optional</td></tr>
+<tr><td>Zone Redundancy</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+<tr><td>Dapr Sidecars</td><td>Optional</td><td>Optional</td><td>Optional</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+<tr><td>Scale-to-Zero</td><td>Optional</td><td>Optional</td><td>Optional</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+<tr><td>Traffic Splitting</td><td>Optional</td><td class="check">&#10003;</td><td>Optional</td><td class="check">&#10003;</td><td class="check">&#10003;</td></tr>
+</table>
+</section>
+
+<section class="section">
+<h2>Production Readiness Checklist</h2>
+<ul class="checklist">
+<li>Enable VNet injection with dedicated /21 subnet</li>
+<li>Enable zone redundancy for high availability</li>
+<li>Configure workload profiles for dedicated compute</li>
+<li>Set up health probes (liveness and readiness)</li>
+<li>Configure IP security restrictions on ingress</li>
+<li>Set min_replicas > 0 for critical services</li>
+<li>Use managed identity for registry authentication</li>
+<li>Configure custom domains with managed certificates</li>
+<li>Set appropriate Log Analytics retention</li>
+<li>Use traffic splitting for safe deployments</li>
+</ul>
+</section>
+
+<section class="section">
+<h2>Configuration Reference</h2>
+<table>
+<tr><th>Variable</th><th>Type</th><th>Default</th><th>Description</th></tr>
+<tr><td><code>environment_name</code></td><td>string</td><td>required</td><td>Container Apps Environment name</td></tr>
+<tr><td><code>infrastructure_subnet_id</code></td><td>string</td><td>null</td><td>Subnet for VNet injection</td></tr>
+<tr><td><code>zone_redundancy_enabled</code></td><td>bool</td><td>false</td><td>Enable zone redundancy</td></tr>
+<tr><td><code>internal_load_balancer_enabled</code></td><td>bool</td><td>false</td><td>Internal-only load balancer</td></tr>
+<tr><td><code>workload_profiles</code></td><td>map(object)</td><td>{}</td><td>Dedicated compute profiles</td></tr>
+<tr><td><code>container_apps</code></td><td>map(object)</td><td>{}</td><td>Container app definitions</td></tr>
+<tr><td><code>dapr_components</code></td><td>map(object)</td><td>{}</td><td>Dapr component definitions</td></tr>
+<tr><td><code>custom_domains</code></td><td>map(object)</td><td>{}</td><td>Custom domain bindings</td></tr>
+<tr><td><code>environment_storages</code></td><td>map(object)</td><td>{}</td><td>Storage mount configurations</td></tr>
+</table>
+</section>
+
+<section class="section">
+<h2>Deployment</h2>
+<pre>
+terraform init
+terraform plan -out=tfplan
+terraform apply tfplan
+
+# Verify apps
+az containerapp list \
+  --resource-group rg-apps \
+  --environment cae-prod-001 \
+  -o table
+</pre>
+</section>
+
+<section class="section">
+<h2>Links</h2>
+<p>
+<a href="https://learn.microsoft.com/en-us/azure/container-apps/overview">Azure Container Apps Docs</a> |
+<a href="https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/container_app">Terraform Container App Resource</a> |
+<a href="../README.md">Module README</a> |
+<a href="../examples/">Examples</a>
+</p>
+</section>
+
+</div>
+
+<footer>
+<div class="container">
+<p>terraform-azure-container-apps Architecture Document</p>
+<p>Generated on 2026-03-15 | Terraform Azure Module</p>
+</div>
+</footer>
+</body>
+</html>
