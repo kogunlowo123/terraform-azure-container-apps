@@ -35,7 +35,7 @@ output "environment_platform_reserved_dns_ip_address" {
 
 output "log_analytics_workspace_id" {
   description = "Resource ID of the Log Analytics workspace."
-  value       = local.log_analytics_workspace_id
+  value       = var.create_log_analytics_workspace ? azurerm_log_analytics_workspace.this[0].id : var.log_analytics_workspace_id
 }
 
 output "container_app_ids" {

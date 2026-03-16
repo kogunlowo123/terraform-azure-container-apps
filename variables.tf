@@ -24,7 +24,7 @@ variable "environment_name" {
 }
 
 variable "log_analytics_workspace_id" {
-  description = "Resource ID of the Log Analytics workspace for the environment. If not provided, a new one will be created."
+  description = "Resource ID of an existing Log Analytics workspace for the environment."
   type        = string
   default     = null
 }
@@ -59,19 +59,19 @@ variable "log_analytics_retention_days" {
 }
 
 variable "infrastructure_subnet_id" {
-  description = "Resource ID of the subnet for VNet injection. The subnet must have a /21 or larger CIDR."
+  description = "Resource ID of the subnet for VNet injection."
   type        = string
   default     = null
 }
 
 variable "internal_load_balancer_enabled" {
-  description = "Whether the environment only has an internal load balancer (no public ingress)."
+  description = "Whether the environment only has an internal load balancer."
   type        = bool
   default     = false
 }
 
 variable "zone_redundancy_enabled" {
-  description = "Whether zone redundancy is enabled for the Container Apps Environment."
+  description = "Whether zone redundancy is enabled for the environment."
   type        = bool
   default     = false
 }
@@ -214,9 +214,9 @@ variable "dapr_components" {
 variable "custom_domains" {
   description = "Map of custom domain configurations for container apps."
   type = map(object({
-    container_app_name     = string
-    name                   = string
-    certificate_binding_type = optional(string, "SniEnabled")
+    container_app_name                      = string
+    name                                    = string
+    certificate_binding_type                = optional(string, "SniEnabled")
     container_app_environment_certificate_id = optional(string, null)
   }))
   default = {}
@@ -225,8 +225,8 @@ variable "custom_domains" {
 variable "managed_certificates" {
   description = "Map of managed certificates for the environment."
   type = map(object({
-    custom_domain_name   = string
-    dns_txt_token_value  = optional(string, null)
+    custom_domain_name  = string
+    dns_txt_token_value = optional(string, null)
   }))
   default = {}
 }

@@ -1,26 +1,20 @@
-###############################################################################
-# Log Analytics Workspace
-###############################################################################
 resource "azurerm_log_analytics_workspace" "this" {
   count = var.create_log_analytics_workspace ? 1 : 0
 
-  name                = local.log_analytics_workspace_name
+  name                = var.log_analytics_workspace_name != "" ? var.log_analytics_workspace_name : "log-${var.environment_name}"
   location            = var.location
   resource_group_name = var.resource_group_name
   sku                 = var.log_analytics_sku
   retention_in_days   = var.log_analytics_retention_days
 
-  tags = local.common_tags
+  tags = var.tags
 }
 
-###############################################################################
-# Container Apps Environment
-###############################################################################
 resource "azurerm_container_app_environment" "this" {
   name                           = var.environment_name
   location                       = var.location
   resource_group_name            = var.resource_group_name
-  log_analytics_workspace_id     = local.log_analytics_workspace_id
+  log_analytics_workspace_id     = var.create_log_analytics_workspace ? azurerm_log_analytics_workspace.this[0].id : var.log_analytics_workspace_id
   infrastructure_subnet_id       = var.infrastructure_subnet_id
   internal_load_balancer_enabled = var.internal_load_balancer_enabled
   zone_redundancy_enabled        = var.zone_redundancy_enabled
@@ -35,12 +29,9 @@ resource "azurerm_container_app_environment" "this" {
     }
   }
 
-  tags = local.common_tags
+  tags = var.tags
 }
 
-###############################################################################
-# Environment Storages
-###############################################################################
 resource "azurerm_container_app_environment_storage" "this" {
   for_each = var.environment_storages
 
@@ -52,9 +43,6 @@ resource "azurerm_container_app_environment_storage" "this" {
   access_mode                  = each.value.access_mode
 }
 
-###############################################################################
-# Managed Certificates
-###############################################################################
 resource "azurerm_container_app_environment_certificate" "managed" {
   for_each = var.managed_certificates
 
@@ -64,9 +52,6 @@ resource "azurerm_container_app_environment_certificate" "managed" {
   certificate_password         = ""
 }
 
-###############################################################################
-# Container Apps
-###############################################################################
 resource "azurerm_container_app" "this" {
   for_each = var.container_apps
 
@@ -146,9 +131,9 @@ resource "azurerm_container_app" "this" {
   dynamic "ingress" {
     for_each = each.value.ingress != null ? [each.value.ingress] : []
     content {
-      external_enabled = ingress.value.external_enabled
-      target_port      = ingress.value.target_port
-      transport        = ingress.value.transport
+      external_enabled          = ingress.value.external_enabled
+      target_port               = ingress.value.target_port
+      transport                 = ingress.value.transport
       allow_insecure_connections = ingress.value.allow_insecure
 
       dynamic "traffic_weight" {
@@ -191,12 +176,9 @@ resource "azurerm_container_app" "this" {
     }
   }
 
-  tags = merge(local.common_tags, each.value.tags)
+  tags = merge(var.tags, each.value.tags)
 }
 
-###############################################################################
-# Dapr Components
-###############################################################################
 resource "azurerm_container_app_environment_dapr_component" "this" {
   for_each = var.dapr_components
 
@@ -226,15 +208,12 @@ resource "azurerm_container_app_environment_dapr_component" "this" {
   }
 }
 
-###############################################################################
-# Custom Domains
-###############################################################################
 resource "azurerm_container_app_custom_domain" "this" {
   for_each = var.custom_domains
 
   name             = each.value.name
   container_app_id = azurerm_container_app.this[each.value.container_app_name].id
 
-  certificate_binding_type                  = each.value.certificate_binding_type
-  container_app_environment_certificate_id  = each.value.container_app_environment_certificate_id
+  certificate_binding_type                 = each.value.certificate_binding_type
+  container_app_environment_certificate_id = each.value.container_app_environment_certificate_id
 }
