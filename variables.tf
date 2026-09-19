@@ -225,8 +225,9 @@ variable "custom_domains" {
 variable "managed_certificates" {
   description = "Map of managed certificates for the environment."
   type = map(object({
-    custom_domain_name  = string
-    dns_txt_token_value = optional(string, null)
+    custom_domain_name        = string
+    dns_txt_token_value       = optional(string, null)
+    domain_control_validation = optional(string, "CNAME")
   }))
   default = {}
 }

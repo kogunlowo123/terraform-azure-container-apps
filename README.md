@@ -119,7 +119,7 @@ module "container_apps" {
 | Name | Version |
 |------|---------|
 | [terraform](https://www.terraform.io/) | >= 1.5.0 |
-| [azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs) | >= 3.80.0 |
+| [azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs) | >= 4.70.0 |
 
 ## Resources
 

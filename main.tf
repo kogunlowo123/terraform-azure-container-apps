@@ -43,13 +43,15 @@ resource "azurerm_container_app_environment_storage" "this" {
   access_mode                  = each.value.access_mode
 }
 
-resource "azurerm_container_app_environment_certificate" "managed" {
+resource "azurerm_container_app_environment_managed_certificate" "managed" {
   for_each = var.managed_certificates
 
   name                         = each.key
   container_app_environment_id = azurerm_container_app_environment.this.id
-  certificate_blob_base64      = ""
-  certificate_password         = ""
+  subject_name                 = each.value.custom_domain_name
+  domain_control_validation    = each.value.domain_control_validation
+
+  tags = var.tags
 }
 
 resource "azurerm_container_app" "this" {

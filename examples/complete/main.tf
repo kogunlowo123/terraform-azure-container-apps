@@ -30,9 +30,9 @@ resource "azurerm_storage_account" "example" {
 }
 
 resource "azurerm_storage_share" "example" {
-  name                 = "config-share"
-  storage_account_name = azurerm_storage_account.example.name
-  quota                = 5
+  name               = "config-share"
+  storage_account_id = azurerm_storage_account.example.id
+  quota              = 5
 }
 
 module "container_apps" {
