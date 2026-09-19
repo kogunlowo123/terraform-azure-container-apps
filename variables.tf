@@ -214,9 +214,9 @@ variable "dapr_components" {
 variable "custom_domains" {
   description = "Map of custom domain configurations for container apps."
   type = map(object({
-    container_app_name                      = string
-    name                                    = string
-    certificate_binding_type                = optional(string, "SniEnabled")
+    container_app_name                       = string
+    name                                     = string
+    certificate_binding_type                 = optional(string, "SniEnabled")
     container_app_environment_certificate_id = optional(string, null)
   }))
   default = {}
